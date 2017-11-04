@@ -31,8 +31,8 @@ function letsencrypt_remove() {
         $CertName = $match[1];
         log::add('letsencrypt', 'debug','remove_step2 '.$CertName);
         /*Clean
-        sudo certbot revoke --test-cert --cert-path /etc/letsencrypt/live/109.26.40.107.xip.io/cert.pem
-        sudo certbot delete --test-cert --cert-name  109.26.40.107.xip.io
+        sudo certbot revoke --test-cert --cert-path /etc/letsencrypt/live/X.X.X.X.xip.io/cert.pem
+        sudo certbot delete --test-cert --cert-name  X.X.X.X.xip.io
         sudo a2dissite 000-default-le-ssl.conf
         sudo systemctl reload apache2
         //sudo systemctl start apache2.service
