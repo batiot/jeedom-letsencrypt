@@ -1,0 +1,14 @@
+{
+	"id" : "letsencrypt",
+	"name" : "Let's Encrypt",
+	"description" : "Let's Encrypt - Free SSL/TLS Certificates",
+	"licence" : "AGPL",
+	"author" : "d. Batiot",
+	"require" : "3.0",
+	"category" : "communication",
+	"hasDependency" : true,
+	"hasOwnDeamon" : false,
+	"maxDependancyInstallTime" : 60,
+	"changelog" : "https://github.com/batiot/jeedom-letsencrypt/blob/master/doc/#language#/changelog.asciidoc",
+	"documentation" : "https://github.com/batiot/jeedom-letsencrypt/blob/master/doc/#language#/index.asciidoc"
+}

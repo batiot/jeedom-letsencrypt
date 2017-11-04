@@ -1,0 +1,45 @@
+== Letsencrypt Jeedom plugin 
+
+=== Description
+Let’s Encrypt is a free, automated, and open Certificate Authority
+This jeedom plugin install and configure "Let’s Encrypt" in order to provide an direct https acces to your jeedom web console from internet.
+
+=== Prerequisites
+. Jeedom device must have acces to internet (certbot send command to Let’s Encrypt CA)
+** If you have acces to Jeedom market on your Jeedom installation it should already be the case
+
+. Port 443 of your internet IP need to be NAT(forward redirection) to port 443 on Jeedom device internal fixed Ip.
+** Port externe(WAN): 443
+** IP interne de destination(LAN): Your Jeedom local IP
+** Port interne: 443
+** Protocole: TCP
+** Service: HTTPS
+*** https://assistance.orange.fr/livebox-modem/toutes-les-livebox-et-modems/installer-et-utiliser/piloter-et-parametrer-votre-materiel/le-parametrage-avance-reseau-nat-pat-ip/configurer-des-regles-nat-pat/livebox-2-configurer-les-regles-nat-pour-l-utilisation-d-un-jeu-ou-d-une-application-serveur_18998-19118[Orange]
+*** https://assistance.sfr.fr/internet-et-box/box-nb6/heberger-site-box.html[SFR]
+*** https://www.astuces-pratiques.fr/informatique/ouvrir-un-port-sur-la-freebox-revolution[Free]
+
+. Your internet connection must have a static IP or a configured DynDNS (to be set in global admin/network/external before installing this plugin)
+
+=== Instalation done by this plugin
+This plugins instal and configured leytsencrypt on the default apache configuration of Jeedom (no Nginx or other http server).
+
+* It as been tested (for now) only on a fresh install of Jeedom 3.1.7 on a RPI3.
+It may not work if your have manually modified your jeedom apache configuration or have a proxy in your LAN topology.
+* This plugins is currently in *alpha* state so do not try it if you don't know how to deal with apache configuration
+
+=== This plugins is under AGPL 3 Licence
+http://www.gnu.org/licenses/agpl-3.0.html which included following limitation of Liability:
+
+  IN NO EVENT UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING
+WILL ANY COPYRIGHT HOLDER, OR ANY OTHER PARTY WHO MODIFIES AND/OR CONVEYS
+THE PROGRAM AS PERMITTED ABOVE, BE LIABLE TO YOU FOR DAMAGES, INCLUDING ANY
+GENERAL, SPECIAL, INCIDENTAL OR CONSEQUENTIAL DAMAGES ARISING OUT OF THE
+USE OR INABILITY TO USE THE PROGRAM (INCLUDING BUT NOT LIMITED TO LOSS OF
+DATA OR DATA BEING RENDERED INACCURATE OR LOSSES SUSTAINED BY YOU OR THIRD
+PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
+EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF
+SUCH DAMAGES.
+
+
+'''
+== Let’s Encrypt is a free, automated, and open certificate authority brought to you by the non-profit Internet Security Research Group (ISRG).
