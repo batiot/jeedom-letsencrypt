@@ -156,8 +156,6 @@ class letsencrypt extends eqLogic {
             //sudo certbot --apache --agree-tos --cert-name X.X.X.X..xip.io --noninteractive --test-cert --domain X.X.X.X..xip.io --email $email
         exec(escapeshellcmd(system::getCmdSudo()."certbot --".$webserver." --force-renewal --agree-tos --force-renewal --noninteractive ".$testServer." --domain ".$hostname." --email ".$email), $out, $ret);
         $certbotOut = print_r($out,true);
-        log::add('letsencrypt', 'error','Certbot '.$webserver.' failed'.$ret. '   '.  $certbotOut);
-
         exec(system::getCmdSudo()."certbot certificates", $out, $ret);
         $certbotOut = print_r($out,true);
         $pattern="/Domains:\s(.*)/";
@@ -210,8 +208,8 @@ class letsencrypt extends eqLogic {
             log::add('letsencrypt', 'debug','revoke_step3 '.print_r($out,true));
             exec(system::getCmdSudo() . "certbot delete ".$testServer." --cert-name  ".$CertName, $out, $ret);
             log::add('letsencrypt', 'debug','revoke_step4 '.print_r($out,true));
-            exec(system::getCmdSudo() . "a2dissite 000-default-le-ssl.conf  ", $out, $ret);
-            log::add('letsencrypt', 'debug','revoke_step4 '.print_r($out,true));
+            //exec(system::getCmdSudo() . "a2dissite 000-default-le-ssl.conf  ", $out, $ret);
+            //log::add('letsencrypt', 'debug','revoke_step4 '.print_r($out,true));
             exec(system::getCmdSudo() . "systemctl reload apache2.service", $out, $ret);
             //log::add('letsencrypt', 'debug','remove_step5 '.print_r($out,true));
             //exec(dirname(__FILE__) . "/../../3rparty/nohup sh -c 'systemctl stop apache2.service && systemctl start apache2.service' &> remove.log", $out, $ret);
