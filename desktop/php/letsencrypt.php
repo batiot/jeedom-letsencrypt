@@ -29,15 +29,17 @@ $eqLogics = eqLogic::byType($plugin->getId());
    <div class="col-lg-10 col-md-9 col-sm-8 eqLogicThumbnailDisplay" style="border-left: solid 1px #EEE; padding-left: 25px;">
     <legend>{{Certificats Https Let's Encrypt}}</legend>
 <!-- ################### BLOC Gestion ##################################################################################################### -->
-  <legend><i class="fa fa-cog"></i>  {{Gestion}}</legend>
-  <div class="eqLogicThumbnailContainer">
+
   <?php if(isset($eqLogics)){
-      if (sizeof($$eqLogics) === 0){ //Only handle one domain for now  ?>
-      <div class="cursor eqLogicAction" data-action="add" style="text-align: center; background-color : #ffffff; height : 120px;margin-bottom : 10px;padding : 5px;border-radius: 2px;width : 160px;margin-left : 10px;" >
-        <i class="fa fa-plus-circle" style="font-size : 6em;color:#94ca02;"></i>
-        <br>
-        <span style="font-size : 1.1em;position:relative; top : 23px;word-break: break-all;white-space: pre-wrap;word-wrap: break-word;color:#94ca02">{{Créer}}</span>
-	  </div>
+      if (sizeof($eqLogics) === 0){ //Only handle one domain for now  ?>
+    <legend><i class="fa fa-cog"></i>  {{Gestion}}</legend>
+    <div class="eqLogicThumbnailContainer">
+        <div class="cursor eqLogicAction" data-action="add" style="text-align: center; background-color : #ffffff; height : 120px;margin-bottom : 10px;padding : 5px;border-radius: 2px;width : 160px;margin-left : 10px;" >
+            <i class="fa fa-plus-circle" style="font-size : 6em;color:#94ca02;"></i>
+            <br>
+            <span style="font-size : 1.1em;position:relative; top : 23px;word-break: break-all;white-space: pre-wrap;word-wrap: break-word;color:#94ca02">{{Créer}}</span>
+        </div>
+    </div>
   <?php }} ?>
   <!--
       <div class="cursor eqLogicAction" data-action="gotoPluginConf" style="text-align: center; background-color : #ffffff; height : 120px;margin-bottom : 10px;padding : 5px;border-radius: 2px;width : 160px;margin-left : 10px;">
@@ -46,13 +48,13 @@ $eqLogics = eqLogic::byType($plugin->getId());
     	<span style="font-size : 1.1em;position:relative; top : 15px;word-break: break-all;white-space: pre-wrap;word-wrap: break-word;color:#767676">{{Configuration}}</span>
       </div>
     -->
-  </div>
+
 
 <!-- ################### Liste EQUIPEMENT  ##################################################################################################### -->
-  <legend><i class="fa fa-table"></i> {{Mes certificats https}}</legend>
+<?php if(isset($eqLogics) && sizeof($eqLogics) != 0){ ?>
+<legend><i class="fa fa-table"></i> {{Mes certificats https}}</legend>
 <div class="eqLogicThumbnailContainer">
     <?php
-    if(isset($eqLogics)){
         foreach ($eqLogics as $eqLogic) {
             $opacity = ($eqLogic->getIsEnable()) ? '' : jeedom::getConfiguration('eqLogic:style:noactive');
             echo '<div class="eqLogicDisplayCard cursor" data-eqLogic_id="' . $eqLogic->getId() . '" style="text-align: center; background-color : #ffffff; height : 200px;margin-bottom : 10px;padding : 5px;border-radius: 2px;width : 160px;margin-left : 10px;' . $opacity . '" >';
@@ -61,10 +63,10 @@ $eqLogics = eqLogic::byType($plugin->getId());
             echo '<span style="font-size : 1.1em;position:relative; top : 15px;word-break: break-all;white-space: pre-wrap;word-wrap: break-word;">' . $eqLogic->getHumanName(true, true) . '</span>';
             echo '</div>';
         }
-    }
 ?>
 </div>
 </div>
+<?php } ?>
 <!-- ################### Menu Detail  ##################################################################################################### -->
 
 <div class="col-lg-10 col-md-9 col-sm-8 eqLogic" style="border-left: solid 1px #EEE; padding-left: 25px;display: none;">
@@ -119,23 +121,25 @@ foreach (object::all() as $object) {
 		<label class="col-sm-3 control-label"></label>
 		<div class="col-sm-9">
 			<label class="checkbox-inline"><input type="checkbox" class="eqLogicAttr" data-l1key="isEnable" checked/>{{Activer}}</label>
-			<label class="checkbox-inline"><input type="checkbox" class="eqLogicAttr" data-l1key="isVisible" checked/>{{Visible}}</label>
+		<!-- 	<label class="checkbox-inline"><input type="checkbox" class="eqLogicAttr" data-l1key="isVisible" checked/>{{Visible}}</label>-->
 		</div>
 	</div>
 <!-- ################### Parametre  ##################################################################################################### -->
-       <div class="form-group">
+    <div class="form-group">
         <label class="col-sm-3 control-label">{{Url Accès externe}}</label>
         <div class="col-sm-3">
 			<a href="<?=config::byKey('externalProtocol') . config::byKey('externalAddr')?>" target="_blank"><?=config::byKey('externalProtocol') . config::byKey('externalAddr')?></a>
 		</div>
+    </div>
+    <div class="form-group">
 		<label class="col-sm-3 control-label">{{Domaine du certificat}}</label>
         <div class="col-sm-3">
-			<input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="domain" readonly/>
 			<?=config::byKey('domain', 'letsencrypt')?>
 		</div>
+    </div>
+    <div class="form-group">
 		<label class="col-sm-3 control-label">{{Date de validité}}</label>
         <div class="col-sm-3">
-			<input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="expiry" readonly/>
 			<?=config::byKey('expiry', 'letsencrypt')?>
 		</div>
     </div>

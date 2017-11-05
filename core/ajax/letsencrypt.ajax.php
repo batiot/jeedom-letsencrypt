@@ -25,7 +25,7 @@ try {
     }
     
     ajax::init();
-    log::add('letsencrypt', 'debug ','ajax');
+    log::add('letsencrypt', 'debug','ajax');
 
     throw new Exception(__('Aucune méthode correspondante à : ', __FILE__) . init('action'));
     /*     * *********Catch exeption*************** */

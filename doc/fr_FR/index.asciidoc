@@ -1,5 +1,5 @@
 == Letsencrypt Jeedom plugin 
-Author's Name <d.batiot>
+
 === Description
 Let’s Encrypt is a free, automated, and open Certificate Authority
 This jeedom plugin install and configure "Let’s Encrypt" in order to provide an direct https acces to your jeedom web console from internet.

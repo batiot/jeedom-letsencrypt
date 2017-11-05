@@ -4,14 +4,22 @@ require_once dirname(__FILE__) . '/../../../../core/php/core.inc.php';
 
 class letsencrypt extends eqLogic {
 
+    /*
+    preSave
+    preInsert
+    postInsert
+    postSave
+    */
+
     public static function dependancy_info() {
         $return = array();
         $return['log'] = __CLASS__ . '_update';
         $return['progress_file'] = jeedom::getTmpFolder(__CLASS__) . '_progress';
         $state = '';
         exec(system::getCmdSudo()."certbot certificates", $out, $ret);
-        log::add('letsencrypt', 'debug ','dependancy_info '.print_r($out,true));
-        if (strpos(print_r($out,true), 'command not found') !== false) {
+        $certbotOut = print_r($out,true);
+        log::add('letsencrypt', 'debug','dependancy_info '.$certbotOut);
+        if (strpos($certbotOut, 'command not found') !== false) {
             $state = 'CertBot not installed';
         } else {
             //Check Externak IP
@@ -24,7 +32,9 @@ class letsencrypt extends eqLogic {
                     if(!empty($externalIP)){
                         config::save('externalProtocol','https://');
                         config::save('externalAddr',$externalIP.'.xip.io');
-                        config::save('externalPort','443');          
+                        config::save('externalPort','443');
+                        config::save('webserver','apache','letsencrypt'); 
+                        config::save('testcert','false','letsencrypt');
                         $state = 'ok';
                     }else{
                         log::add('letsencrypt', 'error','WAN ip can not be found, force manually a valid resolvable hostname in the console admin/netwok/external panel');
@@ -33,6 +43,8 @@ class letsencrypt extends eqLogic {
                 }else{
                     config::save('externalProtocol','https://');
                     config::save('externalPort','443');
+                    config::save('webserver','apache','letsencrypt');
+                    config::save('testcert','false','letsencrypt');
                     $state = 'ok';  
                 }
             }
@@ -42,12 +54,21 @@ class letsencrypt extends eqLogic {
     }
 
     public static function dependancy_install() {
+        //if (file_exists(jeedom::getTmpFolder(__CLASS__) . '_progress')) {
+        //    return;
+        //}
         log::remove(__CLASS__ . '_update');
         $cmd = dirname(__FILE__) . '/../../3rparty/install.sh ';
         $cmd .= ' ' . jeedom::getTmpFolder(__CLASS__) . '_progress';
         log::add('letsencrypt', 'debug','dependancy_install $cmd '. $cmd);
         return array('script' => $cmd, 'log' => log::getPathToLog(__CLASS__ . '_update'));
     }
+
+
+//    $cmd = 'sudo /bin/bash ' . dirname(__FILE__) . '/../../ressources/install.sh';
+//    $cmd .= ' >> ' . log::getPathToLog('teleinfo_update') . ' 2>&1 &';
+//    exec($cmd);
+
 
 
     /*     * *************************Attributs****************************** */
@@ -64,6 +85,8 @@ class letsencrypt extends eqLogic {
       }
      */
 
+     
+
 
     /*
      * Fonction exécutée automatiquement toutes les heures par Jeedom
@@ -74,34 +97,40 @@ class letsencrypt extends eqLogic {
 
     /*
      * Fonction exécutée automatiquement tous les jours par Jeedom*/
-      public static function cronDayly() {
-        log::add('letsencrypt', 'debug ','cronDayly');
-            //certbot renew
-        try {
-            exec(system::getCmdSudo() . "certbot renew", $out, $ret);
-            log::add('letsencrypt', 'debug','Certificat renew '. print_r($out,true));
-        } catch (Exception $exc) {
-            log::add('letsencrypt', 'error','Certificat renew exception'. $exc->getMessage());
+    public static function cronDayly() {
+        log::add('letsencrypt', 'debug','cronDayly');
+        foreach (eqLogic::byType('letsencrypt') as $letsencrypt) {
+            if ($letsencrypt->getIsEnable() == 1){
+                $letsencrypt->renew();
+            }
         }
-      }
+    }
 
     /*     * *********************Méthodes d'instance************************* */
 
     public function preInsert() {
-        log::add('letsencrypt', 'debug ','preInsert');  
+        log::add('letsencrypt', 'debug','preInsert');  
     }
 
     public function postInsert() {
-        log::add('letsencrypt', 'debug ','postInsert'); 
+        log::add('letsencrypt', 'debug','postInsert'); 
     }
 
     public function preSave() {
-        log::add('letsencrypt', 'debug ','preSave');
+        log::add('letsencrypt', 'debug','preSave');
+        if (empty(config::byKey('externalAddr'))) {
+            throw new Exception(__('ExternalAddr ne peut pas être vide',__FILE__));
+        }
+        if (empty(config::byKey('email', 'letsencrypt'))) {
+            throw new Exception(__('L\'email admin ne peut etre vide',__FILE__));
+        }
     }
     
-    private function getCertificate(){
+    public function fetchCertificate(){
         $hostname =config::byKey('externalAddr');
         $email =config::byKey('email', 'letsencrypt');
+        $webserver =config::byKey('webserver', 'letsencrypt');
+        $testcert =config::byKey('testcert', 'letsencrypt');
 
         if (empty($hostname)) {
             throw new Exception(__('ExternalAddr ne peut pas être vide',__FILE__));
@@ -109,15 +138,25 @@ class letsencrypt extends eqLogic {
         if (empty($email)) {
             throw new Exception(__('L\'email admin ne peut etre vide',__FILE__));
         }
-
-        log::add('letsencrypt', 'debug ','preSave $hostname'.$hostname.'   $email'.$email);
-        
-        exec(escapeshellcmd(system::getCmdSudo()."certbot --apache --force-renewal --agree-tos --force-renewal --noninteractive --test-cert --domain ".$hostname." --email ".$email), $out, $ret);
-        $certbotOut = print_r($out,true);
-        if ($ret!=0){
-            log::add('letsencrypt', 'error','Certbot apache failed'.  $certbotOut);
-            throw new Exception('letsencrypt certbot apache failed'. $certbotOut);
+        if (empty($webserver)) {
+            $webserver='apache';
         }
+        $testServer="";
+        if (!empty($testcert) && $testcert==='true') {
+            $testServer = "--test-cert";    
+        }
+
+        log::add('letsencrypt', 'debug','fetchCertificate $hostname:'.$hostname.'   $email:'.$email);
+        //Example
+        //create or renew
+            //sudo certbot --apache --agree-tos --force-renewal --noninteractive --test-cert --domain X.X.X.X.xip.io --email $email
+        //Add additional domain
+            //sudo certbot --apache --agree-tos --expand --noninteractive --test-cert --domain X.X.X.X.xip.io,X.X.X.X.nip.io --email $email
+        //remove additional domain
+            //sudo certbot --apache --agree-tos --cert-name X.X.X.X..xip.io --noninteractive --test-cert --domain X.X.X.X..xip.io --email $email
+        exec(escapeshellcmd(system::getCmdSudo()."certbot --".$webserver." --force-renewal --agree-tos --force-renewal --noninteractive ".$testServer." --domain ".$hostname." --email ".$email), $out, $ret);
+        $certbotOut = print_r($out,true);
+        log::add('letsencrypt', 'error','Certbot '.$webserver.' failed'.$ret. '   '.  $certbotOut);
 
         exec(system::getCmdSudo()."certbot certificates", $out, $ret);
         $certbotOut = print_r($out,true);
@@ -126,63 +165,85 @@ class letsencrypt extends eqLogic {
         if ($success) {
             $domain = $match[1];
             config::save('domain', $domain,'letsencrypt');
+        }else{
+            config::save('domain', '','letsencrypt');
         }
         $pattern="/Expiry Date:\s(.*)/";
         $success = preg_match($pattern, $certbotOut, $match);
         if ($success) {
             $expiry = $match[1];
             config::save('expiry', $expiry,'letsencrypt');
+        }else{
+            config::save('expiry', '','letsencrypt');
         }
         if ($ret!=0){
-            //log::add('letsencrypt', 'error','Certbot certificates failed'.print_r($out,true));
+            log::add('letsencrypt', 'error','Certbot certificates failed'.$certbotOut);
             throw new Exception('Certbot certificates failed'. $certbotOut);
         }
-        //if(strrpos(print_r($out,true), "Domains: ".$hostname) === false){
-        //    log::add('letsencrypt', 'error','Certificates not valid '.print_r($out,true));
-            //throw new Exception('Certificates not valid'. print_r($out,true));
-        //}
-        /*
-        if ($this->getConfiguration('mode') == 'fixe' || $this->getConfiguration('mode') == 'dynamic') {
-            $this->setSubType('string');
-        } else {
-            $this->setSubType('numeric');
-            if ($this->getConfiguration('mode') == 'fixe') {
-                $this->setUnite('min');
-            } else {
-                $this->setUnite('Km');
-            }
-            //$this->setDependency();
+    }
+
+    public function renew(){
+        //certbot renew
+        try {
+            exec(system::getCmdSudo() . "certbot renew", $out, $ret);
+            log::add('letsencrypt', 'debug','Certbot renew '. print_r($out,true));
+        } catch (Exception $exc) {
+            log::add('letsencrypt', 'error','Certbot renew exception'. $exc->getMessage());
         }
-        */
+    }
+
+
+    public function clean(){
+        exec(system::getCmdSudo()."certbot certificates", $out, $ret);
+        $certbotOut = print_r($out,true);
+        log::add('letsencrypt', 'debug','revoke_step1 '.$certbotOut );
+        $pattern="/Domains:\s(.*)/";
+        $success = preg_match($pattern, $certbotOut, $match);
+        if ($success) {
+            $CertName = $match[1];
+            $testServer="";
+            if (strrpos( $certbotOut, "TEST_CERT") !==false) { //ex 2018-02-03 19:16:01+00:00 (INVALID: TEST_CERT)
+                $testServer = "--test-cert";    
+            }
+            log::add('letsencrypt', 'debug','revoke_step2 '.$CertName);
+            exec(system::getCmdSudo() . "certbot revoke ".$testServer." --cert-path /etc/letsencrypt/live/".$CertName."/cert.pem", $out, $ret);
+            log::add('letsencrypt', 'debug','revoke_step3 '.print_r($out,true));
+            exec(system::getCmdSudo() . "certbot delete ".$testServer." --cert-name  ".$CertName, $out, $ret);
+            log::add('letsencrypt', 'debug','revoke_step4 '.print_r($out,true));
+            exec(system::getCmdSudo() . "a2dissite 000-default-le-ssl.conf  ", $out, $ret);
+            log::add('letsencrypt', 'debug','revoke_step4 '.print_r($out,true));
+            exec(system::getCmdSudo() . "systemctl reload apache2.service", $out, $ret);
+            //log::add('letsencrypt', 'debug','remove_step5 '.print_r($out,true));
+            //exec(dirname(__FILE__) . "/../../3rparty/nohup sh -c 'systemctl stop apache2.service && systemctl start apache2.service' &> remove.log", $out, $ret);
+        }
+
+
     }
 
     public function postSave() {
-        log::add('letsencrypt', 'debug ','postSave');
+        $isEnable =config::byKey('isEnable', 'letsencrypt');
+        log::add('letsencrypt', 'debug','postSave'.$isEnable);
+        if($this->getIsEnable()){
+            $this->fetchCertificate();
+            //$this->cronDayly($this->getId());
+        }
     }
-
+/*
     public function preUpdate() {
-      log::add('letsencrypt', 'debug ','preUpdate');
-      if (empty(config::byKey('externalAddr'))) {
-        throw new Exception(__('ExternalAddr ne peut pas être vide',__FILE__));
-      }
-
-      if (empty($this->getConfiguration('email'))) {
-        throw new Exception(__('L\'email admin ne peut etre vide',__FILE__));
-      }
+      log::add('letsencrypt', 'debug','preUpdate');
     }
-
-
 
     public function postUpdate() {
-        log::add('letsencrypt', 'debug ','postUpdate');       
+        log::add('letsencrypt', 'debug','postUpdate');   
     }
 
     public function preRemove() {
-        
+        log::add('letsencrypt', 'debug','postUpdate');    
     }
-
+*/
     public function postRemove() {
-        
+        log::add('letsencrypt', 'debug','postUpdate');
+        $this->clean();
     }
 
     /*
@@ -209,7 +270,7 @@ class letsencrypt extends eqLogic {
 
 class letsencryptCmd extends cmd {
     /*     * *************************Attributs****************************** */
-
+	public static $_widgetPossibility = array('custom' => true);    
 
     /*     * ***********************Methode static*************************** */
 
@@ -223,8 +284,20 @@ class letsencryptCmd extends cmd {
       }
     */
     public function execute($_options = array()) {
-        log::add('letsencrypt', 'debug ','cmd execute '.print_r($_options,true));
+        log::add('letsencrypt', 'debug','cmd execute '.print_r($_options,true));
+        //if ($this->getType() == 'info') {
+		//	return;
+		//}
+        //$eqLogic = $this->getEqLogic();
+        
+		//if ($this->getLogicalId() == 'refresh') {
+		//	$this->getEqLogic()->updateWeatherData();
+		//}
+		//return false;
+
+
     }
+
 
     /*     * **********************Getteur Setteur*************************** */
 }
