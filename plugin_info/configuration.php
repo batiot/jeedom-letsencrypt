@@ -15,22 +15,6 @@ if (!isConnect('admin')) {
             </div>
         </div>
   </fieldset>
-  <fieldset>
-        <div class="form-group">
-            <label class="col-lg-4 control-label">{{WebServer}}</label>
-            <div class="col-lg-2">
-            <?=config::byKey('webserver', 'letsencrypt')?>
-            </div>
-        </div>
-  </fieldset>
-  <fieldset>
-        <div class="form-group">
-            <label class="col-lg-4 control-label">{{Test Certificate}}</label>
-            <div class="col-lg-2">
-            <?=config::byKey('testcert', 'letsencrypt')?>
-            </div>
-        </div>
-  </fieldset>
 </form>
 <script>
   function letsencrypt_postSaveConfiguration(){

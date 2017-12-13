@@ -97,8 +97,7 @@ class letsencrypt extends eqLogic {
 
     /*
      * Fonction exécutée automatiquement tous les jours par Jeedom*/
-    public static function cronDayly() {
-        log::add('letsencrypt', 'debug','cronDayly');
+    public static function renew_letsencrypt() {
         foreach (eqLogic::byType('letsencrypt') as $letsencrypt) {
             if ($letsencrypt->getIsEnable() == 1){
                 $letsencrypt->renew();
@@ -180,11 +179,11 @@ class letsencrypt extends eqLogic {
         }
     }
 
-    public function renew(){
+    public static function renew(){
         //certbot renew
         try {
             exec(system::getCmdSudo() . "certbot renew", $out, $ret);
-            log::add('letsencrypt', 'debug','Certbot renew '. print_r($out,true));
+            log::add('letsencrypt', 'debug','Certbot renew '. print_r(implode(array_reverse($out)),true));
         } catch (Exception $exc) {
             log::add('letsencrypt', 'error','Certbot renew exception'. $exc->getMessage());
         }
@@ -288,12 +287,6 @@ class letsencryptCmd extends cmd {
 		//}
         //$eqLogic = $this->getEqLogic();
         
-		//if ($this->getLogicalId() == 'refresh') {
-		//	$this->getEqLogic()->updateWeatherData();
-		//}
-		//return false;
-
-
     }
 
 

@@ -1,3 +1,4 @@
 == Changelog
 
 31-10-2018: First alpha version
+24-11-2018: Fix cert renew
