@@ -155,6 +155,7 @@ class letsencrypt extends eqLogic {
             //sudo certbot --apache --agree-tos --cert-name X.X.X.X..xip.io --noninteractive --test-cert --domain X.X.X.X..xip.io --email $email
         exec(escapeshellcmd(system::getCmdSudo()."certbot --".$webserver." --force-renewal --no-redirect --agree-tos --force-renewal --noninteractive ".$testServer." --domain ".$hostname." --email ".$email), $out, $ret);
         $certbotOut = print_r($out,true);
+        log::add('letsencrypt', 'debug','Certbot certificates create:'.$certbotOut);
         exec(system::getCmdSudo()."certbot certificates", $out, $ret);
         $certbotOut = print_r($out,true);
         $pattern="/Domains:\s(.*)/";
