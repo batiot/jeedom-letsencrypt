@@ -5,3 +5,5 @@
 24-11-2018: Fix cert renew
 
 16-12-2018: First Release
+
+18-12-2018: Take in account Smart Hardware

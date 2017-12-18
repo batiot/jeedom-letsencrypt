@@ -16,7 +16,7 @@ class letsencrypt extends eqLogic {
         $return['log'] = __CLASS__ . '_update';
         $return['progress_file'] = jeedom::getTmpFolder(__CLASS__) . '_progress';
         $state = '';
-        exec(system::getCmdSudo()."certbot certificates", $out, $ret);
+        exec(system::getCmdSudo()."/opt/certbot certificates", $out, $ret);
         $certbotOut = print_r($out,true);
         log::add('letsencrypt', 'debug','dependancy_info '.$certbotOut);
         if (strpos($certbotOut, 'command not found') !== false) {
@@ -153,10 +153,10 @@ class letsencrypt extends eqLogic {
             //sudo certbot --apache --agree-tos --expand --noninteractive --test-cert --domain X.X.X.X.xip.io,X.X.X.X.nip.io --email $email
         //remove additional domain
             //sudo certbot --apache --agree-tos --cert-name X.X.X.X..xip.io --noninteractive --test-cert --domain X.X.X.X..xip.io --email $email
-        exec(escapeshellcmd(system::getCmdSudo()."certbot --".$webserver." --force-renewal --no-redirect --agree-tos --force-renewal --noninteractive ".$testServer." --domain ".$hostname." --email ".$email), $out, $ret);
+        exec(escapeshellcmd(system::getCmdSudo()."/opt/certbot --".$webserver." --force-renewal --no-redirect --agree-tos --force-renewal --noninteractive ".$testServer." --domain ".$hostname." --email ".$email), $out, $ret);
         $certbotOut = print_r($out,true);
         log::add('letsencrypt', 'debug','Certbot certificates create:'.$certbotOut);
-        exec(system::getCmdSudo()."certbot certificates", $out, $ret);
+        exec(system::getCmdSudo()."/opt/certbot certificates", $out, $ret);
         $certbotOut = print_r($out,true);
         $pattern="/Domains:\s(.*)/";
         $success = preg_match($pattern,$certbotOut , $match);
@@ -183,7 +183,7 @@ class letsencrypt extends eqLogic {
     public static function renew(){
         //certbot renew
         try {
-            exec(system::getCmdSudo() . "certbot renew", $out, $ret);
+            exec(system::getCmdSudo() . "/opt/certbot renew", $out, $ret);
             log::add('letsencrypt', 'debug','Certbot renew '. print_r(implode(array_reverse($out)),true));
         } catch (Exception $exc) {
             log::add('letsencrypt', 'error','Certbot renew exception'. $exc->getMessage());
@@ -192,7 +192,7 @@ class letsencrypt extends eqLogic {
 
 
     public function clean(){
-        exec(system::getCmdSudo()."certbot certificates", $out, $ret);
+        exec(system::getCmdSudo()."/opt/certbot certificates", $out, $ret);
         $certbotOut = print_r($out,true);
         log::add('letsencrypt', 'debug','revoke_step1 '.$certbotOut );
         $pattern="/Domains:\s(.*)/";
@@ -204,9 +204,9 @@ class letsencrypt extends eqLogic {
                 $testServer = "--test-cert";    
             }
             log::add('letsencrypt', 'debug','revoke_step2 '.$CertName);
-            exec(system::getCmdSudo() . "certbot revoke ".$testServer." --cert-path /etc/letsencrypt/live/".$CertName."/cert.pem", $out, $ret);
+            exec(system::getCmdSudo() . "/opt/certbot revoke ".$testServer." --cert-path /etc/letsencrypt/live/".$CertName."/cert.pem", $out, $ret);
             log::add('letsencrypt', 'debug','revoke_step3 '.print_r($out,true));
-            exec(system::getCmdSudo() . "certbot delete ".$testServer." --cert-name  ".$CertName, $out, $ret);
+            exec(system::getCmdSudo() . "/opt/certbot delete ".$testServer." --cert-name  ".$CertName, $out, $ret);
             log::add('letsencrypt', 'debug','revoke_step4 '.print_r($out,true));
             //exec(system::getCmdSudo() . "a2dissite 000-default-le-ssl.conf  ", $out, $ret);
             //log::add('letsencrypt', 'debug','revoke_step4 '.print_r($out,true));
