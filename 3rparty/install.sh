@@ -21,7 +21,7 @@ else
 	cd letsencrypt
 	./certbot-auto --help
 	echo 85 > ${PROGRESS_FILE}
-	ln -s /opt/letsencrypt/certbot-auto /opt/certbot
+	ln -s /opt/letsencrypt/certbot-auto /usr/local/sbin/certbot
 fi
 echo 100 > ${PROGRESS_FILE}
 echo "********************************************************"
