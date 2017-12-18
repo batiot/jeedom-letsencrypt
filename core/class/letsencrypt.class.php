@@ -210,7 +210,7 @@ class letsencrypt extends eqLogic {
             log::add('letsencrypt', 'debug','revoke_step4 '.print_r($out,true));
             exec(system::getCmdSudo() . "a2dissite 000-default-le-ssl.conf  ", $out, $ret);
             //log::add('letsencrypt', 'debug','revoke_step4 '.print_r($out,true));
-            exec(system::getCmdS*udo() . "mv /etc/apache2/sites-available/000-default-le-ssl.conf /etc/apache2/sites-available/000-default-le-ssl.conf-old", $out, $ret);
+            //exec(system::getCmdS*udo() . "mv /etc/apache2/sites-available/000-default-le-ssl.conf /etc/apache2/sites-available/000-default-le-ssl.conf-old", $out, $ret);
             exec(system::getCmdSudo() . "systemctl reload apache2.service", $out, $ret);
             //log::add('letsencrypt', 'debug','remove_step5 '.print_r($out,true));
             //exec(dirname(__FILE__) . "/../../3rparty/nohup sh -c 'systemctl stop apache2.service && systemctl start apache2.service' &> remove.log", $out, $ret);
