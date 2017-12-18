@@ -16,7 +16,7 @@ class letsencrypt extends eqLogic {
         $return['log'] = __CLASS__ . '_update';
         $return['progress_file'] = jeedom::getTmpFolder(__CLASS__) . '_progress';
         $state = '';
-        exec(system::getCmdSudo()."certbot certificates", $out, $ret);
+        exec(system::getCmdSudo()."certbot certificates 2>&1", $out, $ret);
         $certbotOut = print_r($out,true);
         log::add('letsencrypt', 'debug','dependancy_info '.$certbotOut);
         if (strpos($certbotOut, 'command not found') !== false) {
@@ -153,10 +153,10 @@ class letsencrypt extends eqLogic {
             //sudo certbot --apache --agree-tos --expand --noninteractive --test-cert --domain X.X.X.X.xip.io,X.X.X.X.nip.io --email $email
         //remove additional domain
             //sudo certbot --apache --agree-tos --cert-name X.X.X.X..xip.io --noninteractive --test-cert --domain X.X.X.X..xip.io --email $email
-        exec(escapeshellcmd(system::getCmdSudo()."certbot --".$webserver." --force-renewal --no-redirect --agree-tos --force-renewal --noninteractive ".$testServer." --domain ".$hostname." --email ".$email), $out, $ret);
-        $certbotOut = print_r($out,true);
-        log::add('letsencrypt', 'debug','Certbot certificates create:'.$certbotOut);
-        exec(system::getCmdSudo()."certbot certificates", $out, $ret);
+        exec(system::getCmdSudo()."certbot --".$webserver." --force-renewal --no-redirect --agree-tos --force-renewal --noninteractive ".$testServer." --domain ".$hostname." --email ".$email."  2>&1", $out, $ret);
+        $certbotOut = implode($out);
+        log::add('letsencrypt', 'debug','Certbot certificates create:'.$ret.'  '.$certbotOut);
+        exec(system::getCmdSudo()."certbot certificates  2>&1", $out, $ret);
         $certbotOut = print_r($out,true);
         $pattern="/Domains:\s(.*)/";
         $success = preg_match($pattern,$certbotOut , $match);
@@ -183,7 +183,7 @@ class letsencrypt extends eqLogic {
     public static function renew(){
         //certbot renew
         try {
-            exec(system::getCmdSudo() . "certbot renew", $out, $ret);
+            exec(system::getCmdSudo() . "certbot renew  2>&1", $out, $ret);
             log::add('letsencrypt', 'debug','Certbot renew '. print_r(implode(array_reverse($out)),true));
         } catch (Exception $exc) {
             log::add('letsencrypt', 'error','Certbot renew exception'. $exc->getMessage());
@@ -192,7 +192,7 @@ class letsencrypt extends eqLogic {
 
 
     public function clean(){
-        exec(system::getCmdSudo()."certbot certificates", $out, $ret);
+        exec(system::getCmdSudo()."certbot certificates  2>&1", $out, $ret);
         $certbotOut = print_r($out,true);
         log::add('letsencrypt', 'debug','revoke_step1 '.$certbotOut );
         $pattern="/Domains:\s(.*)/";
@@ -204,12 +204,13 @@ class letsencrypt extends eqLogic {
                 $testServer = "--test-cert";    
             }
             log::add('letsencrypt', 'debug','revoke_step2 '.$CertName);
-            exec(system::getCmdSudo() . "certbot revoke ".$testServer." --cert-path /etc/letsencrypt/live/".$CertName."/cert.pem", $out, $ret);
+            exec(system::getCmdSudo() . "certbot revoke ".$testServer." --cert-path /etc/letsencrypt/live/".$CertName."/cert.pem  2>&1", $out, $ret);
             log::add('letsencrypt', 'debug','revoke_step3 '.print_r($out,true));
-            exec(system::getCmdSudo() . "certbot delete ".$testServer." --cert-name  ".$CertName, $out, $ret);
+            exec(system::getCmdSudo() . "certbot delete ".$testServer." --cert-name  ".$CertName."  2>&1" , $out, $ret);
             log::add('letsencrypt', 'debug','revoke_step4 '.print_r($out,true));
-            //exec(system::getCmdSudo() . "a2dissite 000-default-le-ssl.conf  ", $out, $ret);
+            exec(system::getCmdSudo() . "a2dissite 000-default-le-ssl.conf  ", $out, $ret);
             //log::add('letsencrypt', 'debug','revoke_step4 '.print_r($out,true));
+            exec(system::getCmdSudo() . "mv /etc/apache2/sites-available/000-default-le-ssl.conf /etc/apache2/sites-available/000-default-le-ssl.conf-old", $out, $ret);
             exec(system::getCmdSudo() . "systemctl reload apache2.service", $out, $ret);
             //log::add('letsencrypt', 'debug','remove_step5 '.print_r($out,true));
             //exec(dirname(__FILE__) . "/../../3rparty/nohup sh -c 'systemctl stop apache2.service && systemctl start apache2.service' &> remove.log", $out, $ret);
@@ -234,17 +235,18 @@ class letsencrypt extends eqLogic {
     public function postUpdate() {
         log::add('letsencrypt', 'debug','postUpdate');   
     }
-
-    public function preRemove() {
-        log::add('letsencrypt', 'debug','postUpdate');    
-    }
 */
+    public function preRemove() {
+        log::add('letsencrypt', 'debug','preRemove');
+        $this->clean();   
+    }
+ /*
     public function postRemove() {
-        log::add('letsencrypt', 'debug','postUpdate');
+        log::add('letsencrypt', 'debug','postRemove');
         $this->clean();
     }
 
-    /*
+   
      * Non obligatoire mais permet de modifier l'affichage du widget si vous en avez besoin
       public function toHtml($_version = 'dashboard') {
 
