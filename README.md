@@ -1,6 +1,6 @@
 # jeedom-letsencrypt
-This jeedom plugin install and configure "Let’s Encrypt" in order to provide an direct valid https acces to your jeedom web console from internet.
+Ce plugin Jeedom installe et configure *Let's Encrypt* pour fournir un accès direct et valide en *HTTPS* à l'interface web de votre Jeedom depuis Internet. 
 
-See [documentation](./doc/fr_FR/index.asciidoc)
+* Accès à la [documentation](./doc/fr_FR/index.asciidoc).
 
-See [changelog](./doc/fr_FR/changelog.asciidoc)
+* Accès au [changelog](./doc/fr_FR/changelog.asciidoc).
