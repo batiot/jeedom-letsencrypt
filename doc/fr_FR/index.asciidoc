@@ -1,31 +1,36 @@
 == Letsencrypt Jeedom plugin 
 
 === Description
-Let’s Encrypt is a free, automated, and open Certificate Authority
-This jeedom plugin install and configure "Let’s Encrypt" in order to provide an direct https acces to your jeedom web console from internet.
 
-=== Prerequisites
-. Jeedom device must have acces to internet (certbot send command to Let’s Encrypt CA)
-** If you have acces to Jeedom market on your Jeedom installation it should already be the case
+Let’s Encrypt est une autorité de certification ouverte, libre et automatique.
+Ce plugin Jeedom installe et configure *Let's Encrypt* afin d'instaurer un accès direct *HTTPS* à votre interface web Jeedom depuis Internet.
 
-. Port 443 of your internet IP need to be NAT(forward redirection) to port 443 on Jeedom device internal fixed Ip.
-** Port externe(WAN): 443
-** IP interne de destination(LAN): Your Jeedom local IP
-** Port interne: 443
-** Protocole: TCP
-** Service: HTTPS
+=== Prérequis
+
+. Le périphérique Jeedom doit avoir accès à Internet (certbot envoie une commande à l'autorité de certification de let's Encrypt).
+** Si vous avez accès au market de Jeedom depuis votre installation Jeedom, ce devrait déjà être le cas.
+
+. Le port *443* de votre IP de connexion Internet doit être redirigée vers le port 443 de l'IP votre périphérique Jeedom.
+** *Port externe(WAN)* : 443
+** *IP interne de destination (LAN)* : L'adresse IP de votre Jeedom
+** *Port interne* : 443
+** *Protocole* : TCP
+** *Service* : HTTPS
 *** https://assistance.orange.fr/livebox-modem/toutes-les-livebox-et-modems/installer-et-utiliser/piloter-et-parametrer-votre-materiel/le-parametrage-avance-reseau-nat-pat-ip/configurer-des-regles-nat-pat/livebox-2-configurer-les-regles-nat-pour-l-utilisation-d-un-jeu-ou-d-une-application-serveur_18998-19118[Orange]
 *** https://assistance.sfr.fr/internet-et-box/box-nb6/heberger-site-box.html[SFR]
 *** https://www.astuces-pratiques.fr/informatique/ouvrir-un-port-sur-la-freebox-revolution[Free]
 
-. Your internet connection must have a static IP or a configured DynDNS (to be set in global admin/network/external before installing this plugin)
+. Votre connexion Internet doit avoir une adresse IP *statique* ou un *DynDNS* configuré (cela doit être défini dans *Administration->Configuration->Réseaux->Accès externe* avant d'installer le plugin).
 
-=== Instalation done by this plugin
-This plugins instal and configured leytsencrypt on the default apache configuration of Jeedom (no Nginx or other http server).
+=== Installation faite par ce plugin
+Ce plugin installe et configure *letsencrypt* dans la configuration par défaut de Jeedom dans *Apache* 
 
-* It as been tested (for now) only on a fresh install of Jeedom 3.1.7 on a RPI3.
-It may not work if your have manually modified your jeedom apache configuration or have a proxy in your LAN topology.
-* This plugins is not widly used so do not try it if you don't know how to deal with apache configuration
+[IMPORTANT]
+Nginx ou aucun autre serveur HTTP n'est compatible pour le moment.
+
+* Il a été testé (jusqu'à aujourd'hui) sur une installation vierge de Jeedom 3.1.7 sur un Raspberry 3.
+Cela ne devrait pas marcher si vous avez modifié manuellement votre configuration de Jeedom dans Apache ou si vous avez un proxy dans votre configuration LAN.
+* Ce plugin n'est pas encore très répandu, ne l'essayez donc pas si vous ne savez pas comment configurer Apache.
 
 === This plugins is under AGPL 3 Licence
 http://www.gnu.org/licenses/agpl-3.0.html which included following limitation of Liability:
@@ -42,4 +47,4 @@ SUCH DAMAGES.
 
 
 '''
-== Let’s Encrypt is a free, automated, and open certificate authority brought to you by the non-profit Internet Security Research Group (ISRG).
+Let’s Encrypt is a free, automated, and open certificate authority brought to you by the non-profit Internet Security Research Group (ISRG).
