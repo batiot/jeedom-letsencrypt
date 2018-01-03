@@ -5,7 +5,7 @@
 	"licence" : "AGPL",
 	"author" : "d. Batiot",
 	"require" : "3.0",
-	"category" : "communication",
+	"category" : "security",
 	"hasDependency" : true,
 	"hasOwnDeamon" : false,
 	"maxDependancyInstallTime" : 60,
