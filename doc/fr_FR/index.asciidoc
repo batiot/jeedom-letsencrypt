@@ -20,7 +20,9 @@ Ce plugin Jeedom installe et configure *Let's Encrypt* afin d'instaurer un accè
 *** https://assistance.sfr.fr/internet-et-box/box-nb6/heberger-site-box.html[SFR]
 *** https://www.astuces-pratiques.fr/informatique/ouvrir-un-port-sur-la-freebox-revolution[Free]
 
-. Votre connexion Internet doit avoir une adresse IP *statique* ou un *DynDNS* configuré (cela doit être défini dans *Administration->Configuration->Réseaux->Accès externe* avant d'installer le plugin).
+. Votre connexion Internet doit avoir une adresse IP *statique* et un *DNS* configuré (cela doit être défini dans *Administration->Configuration->Réseaux->Accès externe* avant d'installer le plugin).
+** Let's Encrypt à une limite à 20 certificat par domaine et par semaine. Les domaines suivant ont donc une grande chance d'être rejete: .free.fr, .xip.io, .nip.io, .synology.me https://letsencrypt.org/docs/rate-limits/
+
 
 === Installation faite par ce plugin
 Ce plugin installe et configure *letsencrypt* dans la configuration par défaut de Jeedom dans *Apache* 
